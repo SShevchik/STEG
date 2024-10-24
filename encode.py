@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 # NS0 = [10] * 11 + [20] * 11
 NS0_default = [1, 1, 1, -1, -1, -1, 1, -1, -1, 1, -1, -1, -1, -1, 1, 1, 1, -1, 1, 1, -1, 1]
@@ -93,16 +94,19 @@ def validSharpness(block):
         return False
 
 
-def main():
+def main(image, result_image, NS0=None, NS1=None):
+    if NS0 is None or NS1 is None:
+        NS0 = NS0_default
+        NS1 = NS1_default
     NS = [NS0, NS1]
 
-    image = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
     binary_key = get_binary_key('key.txt')
 
     pointer = 0
     evaluate_max_energy(image)
 
-    for height in range(0, image.shape[0], 8):
+    for height in tqdm(range(0, image.shape[0], 8)):
         for width in range(0, image.shape[1], 8):
             to_float32 = np.float32(image[height:height + 8, width:width + 8])
             to_dct = cv2.dct(to_float32)
@@ -122,7 +126,7 @@ def main():
                 new_block = cv2.idct(new_block)
                 image[height:height + 8, width:width + 8] = np.clip(new_block, 0, 255)
                 pointer += 1
-    cv2.imwrite('new_image_threshold_30_fix.jpg', image)
+    cv2.imwrite(result_image, image)
     cv2.waitKey(0)
 
 
