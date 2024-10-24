@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from tqdm import tqdm
+import argparse
 
 from encode import validMonotony, validSharpness
 
@@ -40,4 +41,15 @@ def main(image, result_file, NS0=None, NS1=None):
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('source_file')
+    parser.add_argument('target_file')
+    parser.add_argument('--ns0', nargs='+', type=int)
+    parser.add_argument('--ns1', nargs='+', type=int)
+    args = parser.parse_args()
+    if args.ns0 and len(args.ns0) == 2:
+        args.ns0 *= 11
+    if args.ns1 and len(args.ns1) == 2:
+        args.ns1 *= 11
+
+    main(args.source_file, args.target_file, args.ns0, args.ns1)
